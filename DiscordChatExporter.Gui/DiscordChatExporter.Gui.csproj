@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>DiscordChatExporter</AssemblyName>
+    <ApplicationIcon>../favicon.ico</ApplicationIcon>
+    <PublishTrimmed>true</PublishTrimmed>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <MacOSBundleIdentifier>me.tyrrrz.discordchatexporter</MacOSBundleIdentifier>
+    <MacOSBundleName>DCE</MacOSBundleName>
+    <MacOSBundleDisplayName>DiscordChatExporter</MacOSBundleDisplayName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EncryptionSalt>HimalayanPinkSalt</EncryptionSalt>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Expose this property in code -->
+    <ProjectProperty Include="EncryptionSalt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="../favicon.ico" Link="favicon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AsyncImageLoader.Avalonia" />
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Cogwheel" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="CSharpier.MsBuild" PrivateAssets="all" />
+    <PackageReference Include="Deorcify" />
+    <PackageReference Include="DialogHost.Avalonia" />
+    <PackageReference Include="Gress" />
+    <PackageReference Include="MacBundle" />
+    <PackageReference Include="Markdig" />
+    <PackageReference Include="Material.Avalonia" />
+    <PackageReference Include="Material.Icons.Avalonia" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Onova" />
+    <PackageReference Include="PowerKit" />
+    <PackageReference Include="ThisAssembly.Project" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../DiscordChatExporter.Core/DiscordChatExporter.Core.csproj" />
+  </ItemGroup>
+</Project>

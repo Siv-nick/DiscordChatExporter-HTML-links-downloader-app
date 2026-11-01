@@ -1,0 +1,94 @@
+using System;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using Onova;
+using Onova.Exceptions;
+using Onova.Services;
+
+namespace DiscordChatExporter.Gui.Services;
+
+public class UpdateService(SettingsService settingsService) : IDisposable
+{
+    private readonly IUpdateManager? _updateManager =
+        OperatingSystem.IsWindows() && StartOptions.Current.IsAutoUpdateAllowed
+            ? new UpdateManager(
+                new GithubPackageResolver(
+                    "Tyrrrz",
+                    "DiscordChatExporter",
+                    // Examples:
+                    // DiscordChatExporter.win-arm64.zip
+                    // DiscordChatExporter.win-x64.zip
+                    // DiscordChatExporter.linux-x64.zip
+                    $"DiscordChatExporter.{RuntimeInformation.RuntimeIdentifier}.zip"
+                ),
+                new ZipPackageExtractor()
+            )
+            : null;
+
+    private Version? _updateVersion;
+    private bool _isUpdatePrepared;
+    private bool _isUpdaterLaunched;
+
+    public async ValueTask<Version?> CheckForUpdatesAsync()
+    {
+        if (_updateManager is null)
+            return null;
+
+        if (!settingsService.IsAutoUpdateEnabled)
+            return null;
+
+        var check = await _updateManager.CheckForUpdatesAsync();
+        return check.CanUpdate ? check.LastVersion : null;
+    }
+
+    public async ValueTask PrepareUpdateAsync(Version version)
+    {
+        if (_updateManager is null)
+            return;
+
+        if (!settingsService.IsAutoUpdateEnabled)
+            return;
+
+        try
+        {
+            await _updateManager.PrepareUpdateAsync(_updateVersion = version);
+            _isUpdatePrepared = true;
+        }
+        catch (UpdaterAlreadyLaunchedException)
+        {
+            // Ignore race conditions
+        }
+        catch (LockFileNotAcquiredException)
+        {
+            // Ignore race conditions
+        }
+    }
+
+    public void FinalizeUpdate(bool needRestart)
+    {
+        if (_updateManager is null)
+            return;
+
+        if (!settingsService.IsAutoUpdateEnabled)
+            return;
+
+        if (_updateVersion is null || !_isUpdatePrepared || _isUpdaterLaunched)
+            return;
+
+        try
+        {
+            _updateManager.LaunchUpdater(_updateVersion, needRestart);
+            _isUpdaterLaunched = true;
+        }
+        catch (UpdaterAlreadyLaunchedException)
+        {
+            // Ignore race conditions
+        }
+        catch (LockFileNotAcquiredException)
+        {
+            // Ignore race conditions
+        }
+    }
+
+    public void Dispose() => _updateManager?.Dispose();
+}
